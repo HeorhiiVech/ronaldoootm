@@ -140,7 +140,11 @@ def get_rest_request(endpoint, retries=5, initial_delay=2, expected_type='json')
     log_message(f"REST GET failed after {retries} attempts for {endpoint}. Last error: {last_exception}")
     return None
 
+<<<<<<< HEAD
 def get_all_series(days_ago=4):
+=======
+def get_all_series(days_ago=10):
+>>>>>>> 610e158 (first commit)
     """ Получает список ID и дат начала LoL скримов за последние N дней """
     query_string = """
         query ($filter: SeriesFilter, $first: Int, $after: Cursor, $orderBy: SeriesOrderBy, $orderDirection: OrderDirection) {
@@ -239,7 +243,11 @@ def extract_team_tag(riot_id_game_name):
 # --- Функция обновления и сохранения данных скримов в SQLite (Без изменений от HLL) ---
 def fetch_and_store_scrims():
     log_message("Starting scrims update process...")
+<<<<<<< HEAD
     series_list = get_all_series(days_ago=4)
+=======
+    series_list = get_all_series(days_ago=10)
+>>>>>>> 610e158 (first commit)
     if not series_list: 
         log_message("No recent series found.")
         return 0
