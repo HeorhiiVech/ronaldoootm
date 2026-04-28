@@ -1689,6 +1689,10 @@ def aggregate_tournament_data(selected_team_full_name=None, side_filter="all"):
              icon_html = get_champion_icon_html(ban_id_str, champ_data, width=icon_size_px, height=icon_size_px)
              formatted.append({'champion': champ_name, 'count': count, 'icon_html': icon_html})
         return formatted
+        
+    def unify_champ_name(name):
+        # Унифицируем имена для объединения пиков и банов (например, "Jarvan IV" -> "jarvaniv")
+        return str(name).replace(" ", "").replace("'", "").replace(".", "").lower() if name else ""
 
     cursor = None
     try:
@@ -1722,7 +1726,7 @@ def aggregate_tournament_data(selected_team_full_name=None, side_filter="all"):
         if is_overall_view:
             stats.update({
                 "overall_total_games": 0, "overall_blue_wins": 0, "overall_red_wins": 0,
-                "overall_champ_stats": defaultdict(lambda: {'picks': 0, 'bans': 0, 'wins_when_picked': 0}),
+                "overall_champ_stats": defaultdict(lambda: {'picks': 0, 'bans': 0, 'wins_when_picked': 0, 'display_name': ''}),
                 "overall_picks_by_role": defaultdict(lambda: defaultdict(lambda: {'picks': 0, 'wins': 0})),
                 "overall_bans_ids": defaultdict(int),
                 "temp_overall_duo_stats": defaultdict(lambda: {'games': 0, 'wins': 0, 'roles': None}),
@@ -1746,8 +1750,11 @@ def aggregate_tournament_data(selected_team_full_name=None, side_filter="all"):
                          if not role_abbr: continue
                          champ = game.get(f"{side}_{role_abbr}_Champ")
                          if champ and champ != "N/A":
-                              stats["overall_champ_stats"][champ]['picks'] += 1
-                              if is_win_for_side: stats["overall_champ_stats"][champ]['wins_when_picked'] += 1
+                              uni_champ = unify_champ_name(champ)
+                              stats["overall_champ_stats"][uni_champ]['picks'] += 1
+                              if not stats["overall_champ_stats"][uni_champ]['display_name']:
+                                  stats["overall_champ_stats"][uni_champ]['display_name'] = champ
+                              if is_win_for_side: stats["overall_champ_stats"][uni_champ]['wins_when_picked'] += 1
                               stats["overall_picks_by_role"][role][champ]['picks'] +=1
                               if is_win_for_side: stats["overall_picks_by_role"][role][champ]['wins'] +=1
                               game_picks_by_role[side][role] = champ
@@ -1757,7 +1764,11 @@ def aggregate_tournament_data(selected_team_full_name=None, side_filter="all"):
                          if ban_id and ban_id != "N/A":
                              stats["overall_bans_ids"][ban_id] += 1
                              ban_champ_name = champion_data.get('id_map', {}).get(str(ban_id))
-                             if ban_champ_name: stats["overall_champ_stats"][ban_champ_name]['bans'] += 1
+                             if ban_champ_name:
+                                 uni_ban = unify_champ_name(ban_champ_name)
+                                 stats["overall_champ_stats"][uni_ban]['bans'] += 1
+                                 if ' ' in ban_champ_name or not stats["overall_champ_stats"][uni_ban]['display_name']:
+                                     stats["overall_champ_stats"][uni_ban]['display_name'] = ban_champ_name
                  for side in ["Blue", "Red"]:
                      is_win_for_side = (side == winner_side)
                      side_picks = game_picks_by_role[side]
@@ -1775,14 +1786,15 @@ def aggregate_tournament_data(selected_team_full_name=None, side_filter="all"):
             stats["overall_bans_formatted"] = format_bans_agg(stats["overall_bans_ids"], champion_data, ICON_SIZE_PICKS_BANS)
 
             temp_champ_list = []
-            for champ, data in stats["overall_champ_stats"].items():
+            for uni_key, data in stats["overall_champ_stats"].items():
+                champ_display = data.get('display_name', uni_key)
                 pick_r = (data['picks'] / valid_games_count_overall * 100) if valid_games_count_overall else 0
                 ban_r = (data['bans'] / valid_games_count_overall * 100) if valid_games_count_overall else 0
                 win_r = (data['wins_when_picked'] / data['picks'] * 100) if data['picks'] > 0 else 0
-                temp_champ_list.append({"champion": champ, "picks": data['picks'], "bans": data['bans'],
+                temp_champ_list.append({"champion": champ_display, "picks": data['picks'], "bans": data['bans'],
                                         "pick_rate": round(pick_r,1), "ban_rate": round(ban_r,1),
                                         "presence": round(pick_r + ban_r, 1), "win_rate": round(win_r,1),
-                                        "icon_html": get_champion_icon_html(champ, champion_data, ICON_SIZE_PICKS_BANS, ICON_SIZE_PICKS_BANS)})
+                                        "icon_html": get_champion_icon_html(champ_display, champion_data, ICON_SIZE_PICKS_BANS, ICON_SIZE_PICKS_BANS)})
             stats["overall_champ_stats_formatted"] = sorted(temp_champ_list, key=lambda x: x['presence'], reverse=True)
 
             for role, champs in stats["overall_picks_by_role"].items():
