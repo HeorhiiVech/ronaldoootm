@@ -162,37 +162,76 @@ def update_scrims_route():
     return redirect(url_for('scrims', time_filter=time_filter, side_filter=side_filter))
 
 
-@app.route('/search_draft', methods=['GET'])
+@app.route('/search_draft')
 def search_draft():
-    filters = {
-        'league': request.args.get('league', ''),
-        'patch': request.args.get('patch', ''),
-        'team': request.args.get('team', ''),
-        'result': request.args.get('result', ''),
-        'game_number': request.args.get('game_number', ''),
-        'champion': request.args.get('champion', '')
-    }
-    
     options = get_filter_options()
-    champion_data = get_champion_data()
     
-    drafts = []
+    # Собираем все фильтры, используя getlist для массивов и get для одиночных значений
+    filters = {
+        'leagues': request.args.getlist('league'),
+        'leagues_exclude': request.args.getlist('league_exclude'),
+        'teams': request.args.getlist('team'),
+        'teams_exclude': request.args.getlist('team_exclude'),
+        'champions': request.args.getlist('champion'),
+        'champions_exclude': request.args.getlist('champion_exclude'),
+        'patches': request.args.getlist('patch'),
+        'game_number': request.args.getlist('game_number'),
+        'result': request.args.get('result', ''),
+        'pick_position': request.args.get('pick_position', ''),
+        'side': request.args.get('side', '')
+    }
+
+    def is_active(val):
+        if isinstance(val, list):
+            for v in val:
+                if v:
+                    if str(v).strip() != "":
+                        return True
+            return False
+        else:
+            if val:
+                if str(val).strip() != "":
+                    return True
+            return False
+
     has_filters = False
     
-    if filters['league'] != '' or filters['patch'] != '' or filters['team'] != '' or filters['result'] != '' or filters['game_number'] != '' or filters['champion'] != '':
+    if is_active(filters['leagues']):
         has_filters = True
-        
+    if is_active(filters['leagues_exclude']):
+        has_filters = True
+    if is_active(filters['teams']):
+        has_filters = True
+    if is_active(filters['teams_exclude']):
+        has_filters = True
+    if is_active(filters['champions']):
+        has_filters = True
+    if is_active(filters['champions_exclude']):
+        has_filters = True
+    if is_active(filters['patches']):
+        has_filters = True
+    if is_active(filters['game_number']):
+        has_filters = True
+    if is_active(filters['result']):
+        has_filters = True
+    if is_active(filters['pick_position']):
+        has_filters = True
+    if is_active(filters['side']):
+        has_filters = True
+
+    drafts = []
     if has_filters == True:
         drafts = get_filtered_drafts(filters)
-        
-    return render_template(
-        'search_draft.html',
-        filters=filters,
-        options=options,
-        drafts=drafts,
-        has_filters=has_filters,
-        champion_data=champion_data
-    )
+
+    # Получаем данные о чемпионах для отображения иконок
+    champion_data = get_champion_data()
+
+    return render_template('search_draft.html', 
+                           options=options, 
+                           filters=filters, 
+                           drafts=drafts, 
+                           has_filters=has_filters,
+                           champion_data=champion_data)
 
 @app.route('/tournament')
 def tournament():

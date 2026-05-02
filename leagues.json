@@ -1,5 +1,6 @@
 {
   "LCK": ["T1", "GEN", "HLE", "DK", "KT", "DNS", "BFX", "BRO", "NS", "KRX"],
   "LEC": ["G2", "FNC", "SHFT", "MKOI", "VIT", "SK", "TH", "NAVI", "KC", "GX"],
-  "LCS": ["LYON", "SR", "C9", "DIG", "DSG", "TLAW", "FLY", "SEN"]
+  "LCS": ["LYON", "SR", "C9", "DIG", "DSG", "TLAW", "FLY", "SEN"],
+  "LPLOL": ["BBK", "CRZ", "DREA", "FCN", "GTZ", "RDT", "OTS", "ZZG"]
 }

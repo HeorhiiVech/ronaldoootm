@@ -13,35 +13,131 @@
         padding: 20px;
         border-radius: 8px;
         border: 1px solid var(--border-color);
+        align-items: flex-end;
     }
     .filter-group {
         display: flex;
         flex-direction: column;
+        flex: 1;
+        min-width: 200px;
+        position: relative;
     }
     .filter-group label {
         font-size: 0.85em;
         color: var(--text-secondary);
         margin-bottom: 5px;
     }
-    /* Темный фон для фильтров */
-    .filter-group select {
+
+    /* Стандартные селекты (для одиночного выбора) */
+    .standard-select {
         padding: 8px 12px;
         border-radius: 4px;
         background-color: #1a1d21;
         color: #ffffff;
         border: 1px solid #3f444a;
-        min-width: 140px;
+        width: 100%;
         cursor: pointer;
+        height: 38px;
     }
 
-    /* Сетка: теперь блоки крупнее (примерно 3-4 в ряд) */
+    /* Стили для нового умного Multi-Select */
+    .ms-container {
+        position: relative;
+        width: 100%;
+    }
+    .ms-box {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 4px 8px;
+        background-color: #1a1d21;
+        border: 1px solid #3f444a;
+        border-radius: 4px;
+        min-height: 38px;
+        align-items: center;
+        cursor: text;
+    }
+    .ms-search {
+        flex: 1;
+        min-width: 80px;
+        background: transparent;
+        border: none;
+        color: #ffffff;
+        outline: none;
+        font-size: 0.95em;
+    }
+    .ms-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #1a1d21;
+        border: 1px solid #3f444a;
+        max-height: 250px;
+        overflow-y: auto;
+        z-index: 100;
+        display: none;
+        margin-top: 4px;
+        border-radius: 4px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    }
+    .ms-dropdown.show {
+        display: block;
+    }
+    .ms-option {
+        padding: 8px 12px;
+        cursor: pointer;
+        color: #ddd;
+    }
+    .ms-option:hover {
+        background-color: #2b3036;
+        color: #fff;
+    }
+    
+    /* Стили тегов (выбранных элементов) */
+    .ms-tag {
+        display: flex;
+        align-items: center;
+        background-color: #2b3036;
+        padding: 2px 8px;
+        border-radius: 4px;
+        gap: 6px;
+        user-select: none;
+        font-size: 0.9em;
+        border: 1px solid #4a5057;
+    }
+    .ms-tag-text {
+        cursor: pointer;
+    }
+    .ms-tag-text:hover {
+        text-decoration: underline;
+    }
+    .ms-tag-close {
+        cursor: pointer;
+        color: #aaa;
+        font-weight: bold;
+    }
+    .ms-tag-close:hover {
+        color: #ff6b6b;
+    }
+    
+    /* Состояние исключения (Exclude) */
+    .ms-tag.excluded {
+        background-color: rgba(231, 76, 60, 0.15);
+        border-color: rgba(231, 76, 60, 0.4);
+        color: #ff6b6b;
+    }
+    .ms-tag.excluded .ms-tag-text {
+        text-decoration: line-through;
+    }
+
+    /* Сетка драфтов */
     .drafts-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: 15px;
         align-items: start;
     }
-
     .match-block-compact {
         background-color: var(--bg-surface);
         border: 1px solid var(--border-color);
@@ -49,7 +145,6 @@
         padding: 12px;
         font-size: 0.9em;
     }
-
     .match-block-compact h5 {
         margin: 0 0 8px 0;
         font-size: 1.05em;
@@ -57,7 +152,6 @@
         border-bottom: 1px solid var(--border-color);
         padding-bottom: 8px;
     }
-
     .draft-meta-compact {
         font-size: 0.8em;
         color: var(--text-secondary);
@@ -65,45 +159,13 @@
         display: flex;
         justify-content: space-between;
     }
-
-    .draft-table-mini {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    .draft-table-mini th {
-        padding: 6px;
-        background: rgba(255,255,255,0.03);
-    }
-    .draft-table-mini td {
-        padding: 4px;
-        border-bottom: 1px solid rgba(255,255,255,0.02);
-    }
-
-    .action-cell-mini {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.85em;
-    }
-    .action-cell-mini img {
-        width: 22px !important;
-        height: 22px !important;
-        border-radius: 3px;
-    }
-    .action-label-mini {
-        font-size: 0.75em;
-        color: var(--text-secondary);
-        text-align: center;
-        width: 35px;
-        font-weight: bold;
-    }
-
-    .res-tag {
-        font-size: 0.75em;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-weight: bold;
-    }
+    .draft-table-mini { width: 100%; border-collapse: collapse; }
+    .draft-table-mini th { padding: 6px; background: rgba(255,255,255,0.03); }
+    .draft-table-mini td { padding: 4px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+    .action-cell-mini { display: flex; align-items: center; gap: 6px; font-size: 0.85em; }
+    .action-cell-mini img { width: 22px !important; height: 22px !important; border-radius: 3px; }
+    .action-label-mini { font-size: 0.75em; color: var(--text-secondary); text-align: center; width: 35px; font-weight: bold; }
+    .res-tag { font-size: 0.75em; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
     .res-win { color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
     .res-loss { color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
 </style>
@@ -115,53 +177,103 @@
 
 <form method="get" action="{{ url_for('search_draft') }}">
     <div class="search-filters-container">
+        
         <div class="filter-group">
-            <label for="league">League</label>
-            <select name="league" id="league">
+            <label>League <span style="font-size:0.8em; color:#888;">(Click tag to exclude)</span></label>
+            <div class="ms-container" data-name="league">
+                <div class="ms-box">
+                    <input type="text" class="ms-search" placeholder="Search Leagues...">
+                </div>
+                <div class="ms-dropdown">
+                    {% for l in options.leagues %}
+                        {% set status = '' %}
+                        {% if l in filters.leagues %}{% set status = 'include' %}{% endif %}
+                        {% if l in filters.leagues_exclude %}{% set status = 'exclude' %}{% endif %}
+                        <div class="ms-option" data-value="{{ l }}" data-initial="{{ status }}">{{ l }}</div>
+                    {% endfor %}
+                </div>
+                <div class="ms-hidden-inputs"></div>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label>Team</label>
+            <div class="ms-container" data-name="team">
+                <div class="ms-box">
+                    <input type="text" class="ms-search" placeholder="Search Teams...">
+                </div>
+                <div class="ms-dropdown">
+                    {% for t in options.teams %}
+                        {% set status = '' %}
+                        {% if t in filters.teams %}{% set status = 'include' %}{% endif %}
+                        {% if t in filters.teams_exclude %}{% set status = 'exclude' %}{% endif %}
+                        <div class="ms-option" data-value="{{ t }}" data-initial="{{ status }}">{{ t }}</div>
+                    {% endfor %}
+                </div>
+                <div class="ms-hidden-inputs"></div>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label>Champion</label>
+            <div class="ms-container" data-name="champion">
+                <div class="ms-box">
+                    <input type="text" class="ms-search" placeholder="Search Champions...">
+                </div>
+                <div class="ms-dropdown">
+                    {% for c in options.champions %}
+                        {% set status = '' %}
+                        {% if c in filters.champions %}{% set status = 'include' %}{% endif %}
+                        {% if c in filters.champions_exclude %}{% set status = 'exclude' %}{% endif %}
+                        <div class="ms-option" data-value="{{ c }}" data-initial="{{ status }}">{{ c }}</div>
+                    {% endfor %}
+                </div>
+                <div class="ms-hidden-inputs"></div>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label for="pick_position">Pick Position</label>
+            <select name="pick_position" id="pick_position" class="standard-select">
                 <option value="">-- All --</option>
-                {% for l in options.leagues %}
-                    <option value="{{ l }}" {% if filters.league == l %}selected{% endif %}>{{ l }}</option>
+                {% for pos in options.pick_positions %}
+                    <option value="{{ pos }}" {% if filters.pick_position == pos %}selected{% endif %}>{{ pos }}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="filter-group">
-            <label for="team">Team</label>
-            <select name="team" id="team">
-                <option value="">-- All --</option>
-                {% for t in options.teams %}
-                    <option value="{{ t }}" {% if filters.team == t %}selected{% endif %}>{{ t }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="filter-group">
-            <label for="champion">Champion</label>
-            <select name="champion" id="champion">
-                <option value="">-- All --</option>
-                {% for c in options.champions %}
-                    <option value="{{ c }}" {% if filters.champion == c %}selected{% endif %}>{{ c }}</option>
-                {% endfor %}
-            </select>
-        </div>
+
         <div class="filter-group">
             <label for="result">Champ Result</label>
-            <select name="result" id="result" {% if not filters.champion %}disabled{% endif %}>
+            <select name="result" id="result" class="standard-select">
                 <option value="">-- All --</option>
                 <option value="Win" {% if filters.result == 'Win' %}selected{% endif %}>Win</option>
                 <option value="Loss" {% if filters.result == 'Loss' %}selected{% endif %}>Loss</option>
             </select>
         </div>
-        <div class="filter-group">
+
+        <div class="filter-group" style="min-width: 100px;">
             <label for="patch">Patch</label>
-            <select name="patch" id="patch">
+            <select name="patch" id="patch" class="standard-select">
                 <option value="">-- All --</option>
                 {% for p in options.patches %}
-                    <option value="{{ p }}" {% if filters.patch == p %}selected{% endif %}>{{ p }}</option>
+                    <option value="{{ p }}" {% if p in filters.patches %}selected{% endif %}>{{ p }}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="filter-group" style="justify-content: flex-end; flex-direction: row; gap: 10px; margin-top: auto;">
-            <button type="submit" class="button">Search</button>
-            <a href="{{ url_for('search_draft') }}" class="button" style="background: none; border: 1px solid var(--border-color);">Reset</a>
+
+        <div class="filter-group" style="min-width: 100px;">
+            <label for="game_number">Game</label>
+            <select name="game_number" id="game_number" class="standard-select">
+                <option value="">-- All --</option>
+                {% for gn in options.game_numbers %}
+                    <option value="{{ gn }}" {% if gn|string in filters.game_number %}selected{% endif %}>Game {{ gn }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-group" style="flex: 0 0 auto; justify-content: flex-end; flex-direction: row; gap: 10px;">
+            <button type="submit" class="button" style="height: 38px; padding: 0 20px;">Search</button>
+            <a href="{{ url_for('search_draft') }}" class="button" style="height: 38px; padding: 0 20px; line-height: 36px; background: none; border: 1px solid var(--border-color);">Reset</a>
         </div>
     </div>
 </form>
@@ -176,7 +288,7 @@
             <div class="match-block-compact">
                 <h5>{{ game.draft_left_team_tag }} vs {{ game.draft_right_team_tag }}</h5>
                 <div class="draft-meta-compact">
-                    <span>Game {{ game.sequence_number }} | Patch {{ game.patch }}</span>
+                    <span>Game {{ game.display_game_number }} | Patch {{ game.patch }}</span>
                     <span>{{ game.date[:10] }}</span>
                 </div>
                 
@@ -189,7 +301,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {# Бан фаза 1 (1-3) #}
                         {% set bans1 = [(1,2,1), (3,4,2), (5,6,3)] %}
                         {% for b_seq, r_seq, b_num in bans1 %}
                             <tr>
@@ -209,7 +320,6 @@
                             </tr>
                         {% endfor %}
                         
-                        {# Пик фаза 1 (1-3) #}
                         {% set picks1 = [(7,8,1), (10,9,2), (11,12,3)] %}
                         {% for b_seq, r_seq, p_num in picks1 %}
                             <tr style="background: rgba(255,255,255,0.03);">
@@ -229,7 +339,6 @@
                             </tr>
                         {% endfor %}
 
-                        {# Бан фаза 2 (4-5) #}
                         {% set bans2 = [(14,13,4), (16,15,5)] %}
                         {% for b_seq, r_seq, b_num in bans2 %}
                             <tr>
@@ -249,7 +358,6 @@
                             </tr>
                         {% endfor %}
 
-                        {# Пик фаза 2 (4-5) #}
                         {% set picks2 = [(18,17,4), (19,20,5)] %}
                         {% for b_seq, r_seq, p_num in picks2 %}
                             <tr style="background: rgba(255,255,255,0.03);">
@@ -274,4 +382,123 @@
         {% endfor %}
     </div>
 {% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.ms-container').forEach(container => {
+        const name = container.dataset.name;
+        const box = container.querySelector('.ms-box');
+        const searchInput = container.querySelector('.ms-search');
+        const dropdown = container.querySelector('.ms-dropdown');
+        const hiddenInputsContainer = container.querySelector('.ms-hidden-inputs');
+
+        let state = { included: new Set(), excluded: new Set() };
+        
+        // Загружаем начальные значения, если страница только загрузилась
+        dropdown.querySelectorAll('.ms-option').forEach(opt => {
+            if (opt.dataset.initial === 'include') state.included.add(opt.dataset.value);
+            if (opt.dataset.initial === 'exclude') state.excluded.add(opt.dataset.value);
+        });
+
+        function render() {
+            // Очищаем текущие теги
+            box.querySelectorAll('.ms-tag').forEach(t => t.remove());
+            hiddenInputsContainer.innerHTML = '';
+
+            // Отрисовываем выбранные (зеленые/стандартные)
+            state.included.forEach(val => createTag(val, false));
+            // Отрисовываем исключенные (красные, зачеркнутые)
+            state.excluded.forEach(val => createTag(val, true));
+
+            // Обновляем видимость в выпадающем списке
+            const searchText = searchInput.value.toLowerCase();
+            dropdown.querySelectorAll('.ms-option').forEach(opt => {
+                const val = opt.dataset.value;
+                if (state.included.has(val) || state.excluded.has(val)) {
+                    opt.style.display = 'none'; // Прячем то, что уже выбрано
+                } else if (val.toLowerCase().includes(searchText)) {
+                    opt.style.display = 'block';
+                } else {
+                    opt.style.display = 'none';
+                }
+            });
+        }
+
+        function createTag(val, isExcluded) {
+            const tag = document.createElement('div');
+            tag.className = `ms-tag ${isExcluded ? 'excluded' : ''}`;
+            tag.title = "Click to toggle Exclude/Include";
+
+            const text = document.createElement('span');
+            text.className = 'ms-tag-text';
+            text.textContent = val;
+            // Переключение Include <-> Exclude по клику на текст
+            text.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (isExcluded) {
+                    state.excluded.delete(val);
+                    state.included.add(val);
+                } else {
+                    state.included.delete(val);
+                    state.excluded.add(val);
+                }
+                render();
+            });
+
+            const closeBtn = document.createElement('span');
+            closeBtn.className = 'ms-tag-close';
+            closeBtn.textContent = '×';
+            // Удаление тега по клику на крестик
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                state.included.delete(val);
+                state.excluded.delete(val);
+                render();
+            });
+
+            tag.appendChild(text);
+            tag.appendChild(closeBtn);
+            box.insertBefore(tag, searchInput);
+
+            // Создаем скрытые инпуты для отправки формы в Flask
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = isExcluded ? `${name}_exclude` : name;
+            hidden.value = val;
+            hiddenInputsContainer.appendChild(hidden);
+        }
+
+        // Открытие дропдауна и поиск
+        box.addEventListener('click', () => {
+            searchInput.focus();
+            dropdown.classList.add('show');
+            render();
+        });
+
+        searchInput.addEventListener('input', () => render());
+
+        // Выбор элемента из списка
+        dropdown.querySelectorAll('.ms-option').forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const val = opt.dataset.value;
+                state.included.add(val);
+                searchInput.value = ''; // Очищаем поиск после выбора
+                searchInput.focus();
+                render();
+            });
+        });
+
+        // Закрытие при клике мимо
+        document.addEventListener('click', (e) => {
+            if (!container.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Первоначальный рендер
+        render();
+    });
+});
+</script>
 {% endblock %}
