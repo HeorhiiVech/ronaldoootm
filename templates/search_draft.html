@@ -144,6 +144,7 @@
         border-radius: 8px;
         padding: 12px;
         font-size: 0.9em;
+        transition: opacity 0.2s; /* Плавное затухание при загрузке */
     }
     .match-block-compact h5 {
         margin: 0 0 8px 0;
@@ -292,6 +293,21 @@
                     <span>{{ game.date[:10] }}</span>
                 </div>
                 
+                {% if game.total_games_in_series > 1 %}
+                <div class="series-navigation" style="margin: 10px 0; display: flex; gap: 6px; align-items: center; justify-content: center;">
+                    <span style="font-size: 0.85em; color: var(--text-secondary);">Series:</span>
+                    
+                    {% for sg in game.series_games %}
+                        <button type="button" 
+                                title="Game ID: {{ sg.game_id }}"
+                                style="padding: 2px 8px; font-size: 0.85em; border-radius: 4px; cursor: pointer; border: 1px solid var(--border-color); background-color: {% if sg.game_number == game.display_game_number %}#4CAF50{% else %}transparent{% endif %}; color: white; transition: background-color 0.2s;"
+                                onmouseover="this.style.backgroundColor='{% if sg.game_number == game.display_game_number %}#45a049{% else %}rgba(255,255,255,0.1){% endif %}'"
+                                onmouseout="this.style.backgroundColor='{% if sg.game_number == game.display_game_number %}#4CAF50{% else %}transparent{% endif %}'"
+                                onclick="loadGameInCard(this, '{{ sg.game_id }}')"> G{{ sg.game_number }}
+                        </button>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 <table class="draft-table-mini">
                     <thead>
                         <tr>
@@ -384,6 +400,42 @@
 {% endif %}
 
 <script>
+// --- НОВАЯ AJAX-ФУНКЦИЯ ДЛЯ ЗАГРУЗКИ КАРТОЧКИ ---
+async function loadGameInCard(buttonElement, gameId) {
+    const cardElement = buttonElement.closest('.match-block-compact');
+    
+    // Делаем визуальный эффект загрузки
+    const originalOpacity = cardElement.style.opacity || '1';
+    cardElement.style.opacity = '0.5';
+    cardElement.style.pointerEvents = 'none';
+
+    try {
+        // Делаем запрос на этот же роут, но передаем game_id
+        const response = await fetch(`/search_draft?game_id=${gameId}`);
+        if (!response.ok) throw new Error('Ошибка при загрузке данных матча');
+        
+        const htmlText = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+        
+        // Достаем отрендеренную сервером карточку (она будет одна)
+        const newCard = doc.querySelector('.match-block-compact');
+        
+        if (newCard) {
+            // Подменяем внутренности без перезагрузки
+            cardElement.innerHTML = newCard.innerHTML;
+        } else {
+            console.error('Не удалось найти карточку в ответе сервера.');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+    } finally {
+        cardElement.style.opacity = originalOpacity;
+        cardElement.style.pointerEvents = 'auto';
+    }
+}
+
+// --- ТВОЯ СТАРАЯ ФУНКЦИЯ ДЛЯ MULTI-SELECT ---
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.ms-container').forEach(container => {
         const name = container.dataset.name;
